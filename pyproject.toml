@@ -9,4 +9,9 @@ dependencies = [
     "requests>=2.31",
     "openai>=1.93.0",
     "gitingest>=0.1.5",
+    "typer[all]>=0.9",
+    "rich>=13.0",
 ]
+
+[project.scripts]
+qa-eval = "qa_repo_eval_tool.cli:main"

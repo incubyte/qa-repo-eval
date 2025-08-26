@@ -19,11 +19,10 @@ def calculate_overall_qa_score(metrics: QAMetrics) -> int:
 
     # Weighted scoring - some categories are more important
     weights = {
-        "test_automation": 0.25,  # 25% - Most important
-        "technical_skills": 0.20,  # 20% - Very important
-        "repository_structure": 0.20,  # 20% - Very important
-        "quality_process": 0.20,  # 20% - Important
-        "ci_pipeline": 0.15,  # 15% - Important but not always applicable
+        "test_automation": 0.30,  # 30% - Most important
+        "technical_skills": 0.25,  # 25% - Very important
+        "quality_process": 0.25,  # 25% - Important
+        "ci_pipeline": 0.20,  # 20% - Important but not always applicable
     }
 
     weighted_score = sum(
@@ -209,7 +208,6 @@ def create_default_metrics() -> QAMetrics:
         CIPipelineMetrics,
         QualityProcessMetrics,
         TechnicalSkillsMetrics,
-        RepositoryStructureMetrics,
     )
 
     # Default to low scores - actual evaluation will override these
@@ -223,7 +221,6 @@ def create_default_metrics() -> QAMetrics:
         ci_pipeline=CIPipelineMetrics(0, 0, 0, 0, 0),
         quality_process=QualityProcessMetrics(0, 0, 0, 0, 0),
         technical_skills=TechnicalSkillsMetrics(0, 0, 0, 0, 0),
-        repository_structure=RepositoryStructureMetrics(0, 0, 0, 0, 0),
         overall_qa_maturity_score=0,
         qa_level="Beginner",
         strengths=[],

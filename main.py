@@ -1,5 +1,8 @@
+from src.qa_repo_eval_tool import cli_main
+
+
 def main():
-    print("Hello from qa-repo-eval-tool!")
+    cli_main()
 
 
 if __name__ == "__main__":

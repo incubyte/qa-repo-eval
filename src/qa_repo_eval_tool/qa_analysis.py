@@ -8,7 +8,7 @@ and generate comprehensive QA metrics and assessments.
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import List
 
 from git import Repo
 
@@ -25,16 +25,12 @@ from .types import (
     CIPipelineMetrics,
     QualityProcessMetrics,
     TechnicalSkillsMetrics,
-    RepositoryStructureMetrics,
 )
 from .utils.prompts import (
     get_test_automation_prompt,
     get_ci_pipeline_prompt,
     get_quality_process_prompt,
     get_technical_skills_prompt,
-    get_repository_structure_prompt,
-    get_overall_qa_assessment_prompt,
-    get_commit_analysis_prompt,
 )
 from .metrics_calculator import (
     calculate_overall_qa_score,
@@ -348,94 +344,6 @@ def analyze_technical_skills(repo_path: Path) -> TechnicalSkillsMetrics:
         return TechnicalSkillsMetrics(0, 0, 0, 0, 0)
 
 
-def analyze_repository_structure(
-    repo: Repo, repo_path: Path
-) -> RepositoryStructureMetrics:
-    """
-    Analyze repository structure and organization.
-
-    Args:
-        repo: Git repository object
-        repo_path: Path to repository
-
-    Returns:
-        RepositoryStructureMetrics with scores
-    """
-    try:
-        content_parts = []
-
-        # Repository structure
-        repo_structure = get_repository_structure(repo_path)
-        content_parts.append("REPOSITORY ANALYSIS:")
-        content_parts.append(
-            json.dumps(
-                {
-                    "primary_language": repo_structure["primary_language"],
-                    "total_files": repo_structure["total_files"],
-                    "test_files_count": len(repo_structure["test_files"]),
-                    "ci_files_count": len(repo_structure["ci_files"]),
-                    "qa_config_files_count": len(repo_structure["qa_config_files"]),
-                    "test_frameworks": list(repo_structure["test_frameworks"]),
-                    "has_readme": repo_structure["readme_file"] is not None,
-                },
-                indent=2,
-            )
-        )
-
-        # Directory structure overview
-        content_parts.append("\n\nDIRECTORY STRUCTURE:")
-        for root, dirs, files in os.walk(repo_path):
-            # Skip hidden and build directories
-            dirs[:] = [
-                d
-                for d in dirs
-                if not d.startswith(".")
-                and d not in {"node_modules", "__pycache__", "build", "dist", "target"}
-            ]
-
-            level = root.replace(str(repo_path), "").count(os.sep)
-            if level > 3:  # Limit depth
-                continue
-
-            indent = "  " * level
-            content_parts.append(f"{indent}{Path(root).name}/")
-
-            # Show key files
-            subindent = "  " * (level + 1)
-            for file in files[:5]:  # Limit files shown
-                content_parts.append(f"{subindent}{file}")
-
-        # Commit history sample for version control analysis
-        commits = extract_commit_history(repo, max_commits=20)
-        content_parts.append(f"\n\nCOMMIT HISTORY SAMPLE ({len(commits)} commits):")
-        content_parts.append(json.dumps(commits[:10], indent=2))  # Limit commits
-
-        content = "\n".join(content_parts)
-
-        # Call AI for analysis
-        prompt = get_repository_structure_prompt()
-        response = call_ai_api(prompt, content)
-
-        # Parse JSON response
-        result = json.loads(response)
-
-        return RepositoryStructureMetrics(
-            project_structure_score=result.get("project_structure_score", 0),
-            test_structure_score=result.get("test_structure_score", 0),
-            configuration_management_score=result.get(
-                "configuration_management_score", 0
-            ),
-            dependency_management_score=result.get("dependency_management_score", 0),
-            version_control_practices_score=result.get(
-                "version_control_practices_score", 0
-            ),
-        )
-
-    except Exception as e:
-        print(f"Error in repository structure analysis: {e}")
-        return RepositoryStructureMetrics(0, 0, 0, 0, 0)
-
-
 def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:
     """
     Perform comprehensive QA analysis of a repository.
@@ -465,9 +373,6 @@ def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:
     print("💻 Analyzing technical skills...")
     technical_skills = analyze_technical_skills(repo_path)
 
-    print("📂 Analyzing repository structure...")
-    repository_structure = analyze_repository_structure(repo, repo_path)
-
     # Create comprehensive metrics
     metrics = QAMetrics(
         # Basic info
@@ -481,7 +386,6 @@ def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:
         ci_pipeline=ci_pipeline,
         quality_process=quality_process,
         technical_skills=technical_skills,
-        repository_structure=repository_structure,
         # These will be calculated
         overall_qa_maturity_score=0,
         qa_level="",

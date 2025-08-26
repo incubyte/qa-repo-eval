@@ -83,26 +83,6 @@ class TechnicalSkillsMetrics:
 
 
 @dataclass
-class RepositoryStructureMetrics:
-    """Metrics for repository structure and organization."""
-
-    project_structure_score: int  # 0-10: Overall project organization
-    test_structure_score: int  # 0-10: Test file organization
-    configuration_management_score: int  # 0-10: Config file management
-    dependency_management_score: int  # 0-10: Dependency handling
-    version_control_practices_score: int  # 0-10: Git practices and commit quality
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "project_structure_score": self.project_structure_score,
-            "test_structure_score": self.test_structure_score,
-            "configuration_management_score": self.configuration_management_score,
-            "dependency_management_score": self.dependency_management_score,
-            "version_control_practices_score": self.version_control_practices_score,
-        }
-
-
-@dataclass
 class QAMetrics:
     """Comprehensive QA assessment metrics."""
 
@@ -118,7 +98,6 @@ class QAMetrics:
     ci_pipeline: CIPipelineMetrics
     quality_process: QualityProcessMetrics
     technical_skills: TechnicalSkillsMetrics
-    repository_structure: RepositoryStructureMetrics
 
     # Overall assessment
     overall_qa_maturity_score: int  # 0-100: Calculated overall score
@@ -141,7 +120,6 @@ class QAMetrics:
             "ci_pipeline": self.ci_pipeline.to_dict(),
             "quality_process": self.quality_process.to_dict(),
             "technical_skills": self.technical_skills.to_dict(),
-            "repository_structure": self.repository_structure.to_dict(),
             # Overall assessment
             "overall_qa_maturity_score": self.overall_qa_maturity_score,
             "qa_level": self.qa_level,
@@ -191,16 +169,6 @@ class QAMetrics:
                     self.technical_skills.ui_testing_score,
                     self.technical_skills.performance_testing_score,
                     self.technical_skills.security_testing_score,
-                ]
-            )
-            / 5.0,
-            "repository_structure": sum(
-                [
-                    self.repository_structure.project_structure_score,
-                    self.repository_structure.test_structure_score,
-                    self.repository_structure.configuration_management_score,
-                    self.repository_structure.dependency_management_score,
-                    self.repository_structure.version_control_practices_score,
                 ]
             )
             / 5.0,
@@ -282,7 +250,7 @@ MINIMUM_REQUIREMENTS = {
     "PASS": {
         "min_test_files": 5,
         "min_commit_count": 10,
-        "required_categories": ["test_automation", "repository_structure"],
+        "required_categories": ["test_automation", "technical_skills"],
         "min_category_score": 6.0,
     },
     "CONDITIONAL_PASS": {
