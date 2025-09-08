@@ -69,16 +69,12 @@ class TechnicalSkillsMetrics:
     test_design_patterns_score: int  # 0-10: Use of test design patterns
     api_testing_score: int  # 0-10: API testing capabilities
     ui_testing_score: int  # 0-10: UI testing implementation
-    performance_testing_score: int  # 0-10: Performance testing evidence
-    security_testing_score: int  # 0-10: Security testing practices
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "test_design_patterns_score": self.test_design_patterns_score,
             "api_testing_score": self.api_testing_score,
             "ui_testing_score": self.ui_testing_score,
-            "performance_testing_score": self.performance_testing_score,
-            "security_testing_score": self.security_testing_score,
         }
 
 
@@ -167,8 +163,6 @@ class QAMetrics:
                     self.technical_skills.test_design_patterns_score,
                     self.technical_skills.api_testing_score,
                     self.technical_skills.ui_testing_score,
-                    self.technical_skills.performance_testing_score,
-                    self.technical_skills.security_testing_score,
                 ]
             )
             / 5.0,

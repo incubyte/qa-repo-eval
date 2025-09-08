@@ -335,13 +335,11 @@ def analyze_technical_skills(repo_path: Path) -> TechnicalSkillsMetrics:
             test_design_patterns_score=result.get("test_design_patterns_score", 0),
             api_testing_score=result.get("api_testing_score", 0),
             ui_testing_score=result.get("ui_testing_score", 0),
-            performance_testing_score=result.get("performance_testing_score", 0),
-            security_testing_score=result.get("security_testing_score", 0),
         )
 
     except Exception as e:
         print(f"Error in technical skills analysis: {e}")
-        return TechnicalSkillsMetrics(0, 0, 0, 0, 0)
+        return TechnicalSkillsMetrics(0, 0, 0)
 
 
 def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:

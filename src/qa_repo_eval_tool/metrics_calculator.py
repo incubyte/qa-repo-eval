@@ -220,7 +220,7 @@ def create_default_metrics() -> QAMetrics:
         test_automation=TestAutomationMetrics(0, 0, 0, 0, 0),
         ci_pipeline=CIPipelineMetrics(0, 0, 0, 0, 0),
         quality_process=QualityProcessMetrics(0, 0, 0, 0, 0),
-        technical_skills=TechnicalSkillsMetrics(0, 0, 0, 0, 0),
+        technical_skills=TechnicalSkillsMetrics(0, 0, 0),
         overall_qa_maturity_score=0,
         qa_level="Beginner",
         strengths=[],
