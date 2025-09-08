@@ -21,8 +21,6 @@ def calculate_overall_qa_score(metrics: QAMetrics) -> int:
     weights = {
         "test_automation": 0.30,  # 30% - Most important
         "technical_skills": 0.25,  # 25% - Very important
-        "quality_process": 0.25,  # 25% - Important
-        "ci_pipeline": 0.20,  # 20% - Important but not always applicable
     }
 
     weighted_score = sum(
