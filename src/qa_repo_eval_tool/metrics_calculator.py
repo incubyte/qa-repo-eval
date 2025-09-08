@@ -205,8 +205,6 @@ def create_default_metrics() -> QAMetrics:
     """Create a QAMetrics object with default values for testing purposes."""
     from .types import (
         TestAutomationMetrics,
-        CIPipelineMetrics,
-        QualityProcessMetrics,
         TechnicalSkillsMetrics,
     )
 
@@ -218,8 +216,6 @@ def create_default_metrics() -> QAMetrics:
         total_file_count=0,
         test_frameworks=[],
         test_automation=TestAutomationMetrics(0, 0, 0, 0, 0),
-        ci_pipeline=CIPipelineMetrics(0, 0, 0, 0, 0),
-        quality_process=QualityProcessMetrics(0, 0, 0, 0, 0),
         technical_skills=TechnicalSkillsMetrics(0, 0, 0),
         overall_qa_maturity_score=0,
         qa_level="Beginner",

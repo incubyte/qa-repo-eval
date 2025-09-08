@@ -23,46 +23,6 @@ class TestAutomationMetrics:
 
 
 @dataclass
-class CIPipelineMetrics:
-    """Metrics for CI/CD pipeline assessment."""
-
-    pipeline_configuration_score: int  # 0-10: Quality of CI/CD setup
-    automated_testing_integration_score: int  # 0-10: Tests integrated in pipeline
-    deployment_automation_score: int  # 0-10: Automated deployment practices
-    pipeline_efficiency_score: int  # 0-10: Pipeline speed and reliability
-    environment_management_score: int  # 0-10: Environment setup and management
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "pipeline_configuration_score": self.pipeline_configuration_score,
-            "automated_testing_integration_score": self.automated_testing_integration_score,
-            "deployment_automation_score": self.deployment_automation_score,
-            "pipeline_efficiency_score": self.pipeline_efficiency_score,
-            "environment_management_score": self.environment_management_score,
-        }
-
-
-@dataclass
-class QualityProcessMetrics:
-    """Metrics for overall QA process assessment."""
-
-    testing_strategy_score: int  # 0-10: Evidence of testing strategy
-    bug_tracking_score: int  # 0-10: Bug reporting and tracking practices
-    code_review_process_score: int  # 0-10: Code review quality
-    documentation_quality_score: int  # 0-10: QA documentation quality
-    collaboration_score: int  # 0-10: Team collaboration evidence
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "testing_strategy_score": self.testing_strategy_score,
-            "bug_tracking_score": self.bug_tracking_score,
-            "code_review_process_score": self.code_review_process_score,
-            "documentation_quality_score": self.documentation_quality_score,
-            "collaboration_score": self.collaboration_score,
-        }
-
-
-@dataclass
 class TechnicalSkillsMetrics:
     """Metrics for technical QA skills assessment."""
 
@@ -91,8 +51,6 @@ class QAMetrics:
 
     # Detailed metric categories
     test_automation: TestAutomationMetrics
-    ci_pipeline: CIPipelineMetrics
-    quality_process: QualityProcessMetrics
     technical_skills: TechnicalSkillsMetrics
 
     # Overall assessment
@@ -113,8 +71,6 @@ class QAMetrics:
             "test_frameworks": self.test_frameworks,
             # Detailed metrics
             "test_automation": self.test_automation.to_dict(),
-            "ci_pipeline": self.ci_pipeline.to_dict(),
-            "quality_process": self.quality_process.to_dict(),
             "technical_skills": self.technical_skills.to_dict(),
             # Overall assessment
             "overall_qa_maturity_score": self.overall_qa_maturity_score,
@@ -135,26 +91,6 @@ class QAMetrics:
                     self.test_automation.framework_usage_score,
                     self.test_automation.assertion_quality_score,
                     self.test_automation.test_data_management_score,
-                ]
-            )
-            / 5.0,
-            "ci_pipeline": sum(
-                [
-                    self.ci_pipeline.pipeline_configuration_score,
-                    self.ci_pipeline.automated_testing_integration_score,
-                    self.ci_pipeline.deployment_automation_score,
-                    self.ci_pipeline.pipeline_efficiency_score,
-                    self.ci_pipeline.environment_management_score,
-                ]
-            )
-            / 5.0,
-            "quality_process": sum(
-                [
-                    self.quality_process.testing_strategy_score,
-                    self.quality_process.bug_tracking_score,
-                    self.quality_process.code_review_process_score,
-                    self.quality_process.documentation_quality_score,
-                    self.quality_process.collaboration_score,
                 ]
             )
             / 5.0,

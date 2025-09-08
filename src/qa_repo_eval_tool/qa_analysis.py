@@ -16,20 +16,15 @@ from .git_utils import (
     get_commit_count,
     get_repository_structure,
     detect_test_files,
-    detect_ci_files,
     detect_qa_config_files,
 )
 from .types import (
     QAMetrics,
     TestAutomationMetrics,
-    CIPipelineMetrics,
-    QualityProcessMetrics,
     TechnicalSkillsMetrics,
 )
 from .utils.prompts import (
     get_test_automation_prompt,
-    get_ci_pipeline_prompt,
-    get_quality_process_prompt,
     get_technical_skills_prompt,
 )
 from .metrics_calculator import (
@@ -212,104 +207,6 @@ def analyze_test_automation(repo_path: Path) -> TestAutomationMetrics:
         return TestAutomationMetrics(0, 0, 0, 0, 0)
 
 
-def analyze_ci_pipeline(repo_path: Path) -> CIPipelineMetrics:
-    """
-    Analyze CI/CD pipeline configuration using AI.
-
-    Args:
-        repo_path: Path to repository
-
-    Returns:
-        CIPipelineMetrics with scores
-    """
-    try:
-        # Extract CI/CD related content
-        ci_files = detect_ci_files(repo_path)
-        ci_content_parts = []
-
-        ci_content_parts.append(f"Found {len(ci_files)} CI/CD files:")
-        for ci_file in ci_files:
-            try:
-                relative_path = ci_file.relative_to(repo_path)
-                ci_content_parts.append(f"\n--- {relative_path} ---")
-                content = ci_file.read_text(encoding="utf-8", errors="ignore")
-                ci_content_parts.append(content)
-            except Exception:
-                continue
-
-        if not ci_files:
-            ci_content_parts.append("No CI/CD configuration files found.")
-
-        content = "\n".join(ci_content_parts)
-
-        # Call AI for analysis
-        prompt = get_ci_pipeline_prompt()
-        response = call_ai_api(prompt, content)
-
-        # Parse JSON response
-        result = json.loads(response)
-
-        return CIPipelineMetrics(
-            pipeline_configuration_score=result.get("pipeline_configuration_score", 0),
-            automated_testing_integration_score=result.get(
-                "automated_testing_integration_score", 0
-            ),
-            deployment_automation_score=result.get("deployment_automation_score", 0),
-            pipeline_efficiency_score=result.get("pipeline_efficiency_score", 0),
-            environment_management_score=result.get("environment_management_score", 0),
-        )
-
-    except Exception as e:
-        print(f"Error in CI pipeline analysis: {e}")
-        return CIPipelineMetrics(0, 0, 0, 0, 0)
-
-
-def analyze_quality_process(repo: Repo, repo_path: Path) -> QualityProcessMetrics:
-    """
-    Analyze quality assurance processes using AI.
-
-    Args:
-        repo: Git repository object
-        repo_path: Path to repository
-
-    Returns:
-        QualityProcessMetrics with scores
-    """
-    try:
-        content_parts = []
-
-        # Repository content overview
-        repo_content = extract_repo_content(repo_path, max_files=30)
-        content_parts.append("REPOSITORY OVERVIEW:")
-        content_parts.append(repo_content[:20000])  # Limit size
-
-        # Commit history for process analysis
-        commits = extract_commit_history(repo, max_commits=30)
-        content_parts.append(f"\n\nCOMMIT HISTORY ({len(commits)} recent commits):")
-        content_parts.append(json.dumps(commits, indent=2))
-
-        content = "\n".join(content_parts)
-
-        # Call AI for analysis
-        prompt = get_quality_process_prompt()
-        response = call_ai_api(prompt, content)
-
-        # Parse JSON response
-        result = json.loads(response)
-
-        return QualityProcessMetrics(
-            testing_strategy_score=result.get("testing_strategy_score", 0),
-            bug_tracking_score=result.get("bug_tracking_score", 0),
-            code_review_process_score=result.get("code_review_process_score", 0),
-            documentation_quality_score=result.get("documentation_quality_score", 0),
-            collaboration_score=result.get("collaboration_score", 0),
-        )
-
-    except Exception as e:
-        print(f"Error in quality process analysis: {e}")
-        return QualityProcessMetrics(0, 0, 0, 0, 0)
-
-
 def analyze_technical_skills(repo_path: Path) -> TechnicalSkillsMetrics:
     """
     Analyze technical QA skills demonstrated in the repository.
@@ -362,12 +259,6 @@ def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:
     print("📊 Analyzing test automation...")
     test_automation = analyze_test_automation(repo_path)
 
-    print("⚙️ Analyzing CI/CD pipeline...")
-    ci_pipeline = analyze_ci_pipeline(repo_path)
-
-    print("📋 Analyzing quality processes...")
-    quality_process = analyze_quality_process(repo, repo_path)
-
     print("💻 Analyzing technical skills...")
     technical_skills = analyze_technical_skills(repo_path)
 
@@ -381,8 +272,6 @@ def analyze_full_qa_repository(repo: Repo, repo_path: Path) -> QAMetrics:
         test_frameworks=list(repo_structure["test_frameworks"]),
         # Detailed assessments
         test_automation=test_automation,
-        ci_pipeline=ci_pipeline,
-        quality_process=quality_process,
         technical_skills=technical_skills,
         # These will be calculated
         overall_qa_maturity_score=0,
