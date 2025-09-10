@@ -7,8 +7,9 @@ and generate comprehensive QA metrics and assessments.
 
 import json
 import os
+import re
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 from git import Repo
 
@@ -81,6 +82,78 @@ def call_ai_api(prompt: str, content: str, max_tokens: int = 2000) -> str:
     except Exception as e:
         print(f"AI API call failed: {e}")
         raise
+
+
+def parse_ai_json_response(response: str) -> Dict[str, Any]:
+    """
+    Parse JSON from AI response, handling various formats and edge cases.
+
+    Args:
+        response: Raw AI response string
+
+    Returns:
+        Parsed JSON dictionary
+
+    Raises:
+        ValueError: If no valid JSON can be extracted
+    """
+    if not response or not response.strip():
+        raise ValueError("Empty response from AI")
+
+    # First, try to parse the response directly as JSON
+    try:
+        return json.loads(response.strip())
+    except json.JSONDecodeError:
+        pass
+
+    # Try to extract JSON from markdown code blocks
+    json_pattern = r"```(?:json)?\s*(\{.*?\})\s*```"
+    matches = re.findall(json_pattern, response, re.DOTALL | re.IGNORECASE)
+
+    if matches:
+        for match in matches:
+            try:
+                return json.loads(match.strip())
+            except json.JSONDecodeError:
+                continue
+
+    # Try to find JSON object in the response (look for { ... })
+    json_object_pattern = r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}"
+    matches = re.findall(json_object_pattern, response, re.DOTALL)
+
+    if matches:
+        for match in matches:
+            try:
+                return json.loads(match.strip())
+            except json.JSONDecodeError:
+                continue
+
+    # Last resort: try to extract anything that looks like JSON
+    # Look for the pattern starting with { and ending with }
+    start_idx = response.find("{")
+    if start_idx != -1:
+        # Find the matching closing brace
+        brace_count = 0
+        end_idx = start_idx
+        for i in range(start_idx, len(response)):
+            if response[i] == "{":
+                brace_count += 1
+            elif response[i] == "}":
+                brace_count -= 1
+                if brace_count == 0:
+                    end_idx = i + 1
+                    break
+
+        if brace_count == 0:
+            try:
+                json_str = response[start_idx:end_idx]
+                return json.loads(json_str)
+            except json.JSONDecodeError:
+                pass
+
+    # If all else fails, log the response and raise an error
+    print(f"Failed to parse JSON from AI response. Response was: {response[:500]}...")
+    raise ValueError("Could not extract valid JSON from AI response")
 
 
 def extract_repo_content(repo_path: Path, max_files: int = 50) -> str:
@@ -191,8 +264,8 @@ def analyze_test_automation(repo_path: Path) -> TestAutomationMetrics:
         prompt = get_test_automation_prompt()
         response = call_ai_api(prompt, content)
 
-        # Parse JSON response
-        result = json.loads(response)
+        # Parse JSON response using robust parser
+        result = parse_ai_json_response(response)
 
         return TestAutomationMetrics(
             test_coverage_score=result.get("test_coverage_score", 0),
@@ -202,6 +275,9 @@ def analyze_test_automation(repo_path: Path) -> TestAutomationMetrics:
             test_data_management_score=result.get("test_data_management_score", 0),
         )
 
+    except ValueError as e:
+        print(f"Error parsing AI response in test automation analysis: {e}")
+        return TestAutomationMetrics(0, 0, 0, 0, 0)
     except Exception as e:
         print(f"Error in test automation analysis: {e}")
         return TestAutomationMetrics(0, 0, 0, 0, 0)
@@ -225,8 +301,8 @@ def analyze_technical_skills(repo_path: Path) -> TechnicalSkillsMetrics:
         prompt = get_technical_skills_prompt()
         response = call_ai_api(prompt, content)
 
-        # Parse JSON response
-        result = json.loads(response)
+        # Parse JSON response using robust parser
+        result = parse_ai_json_response(response)
 
         return TechnicalSkillsMetrics(
             test_design_patterns_score=result.get("test_design_patterns_score", 0),
@@ -234,6 +310,9 @@ def analyze_technical_skills(repo_path: Path) -> TechnicalSkillsMetrics:
             ui_testing_score=result.get("ui_testing_score", 0),
         )
 
+    except ValueError as e:
+        print(f"Error parsing AI response in technical skills analysis: {e}")
+        return TechnicalSkillsMetrics(0, 0, 0)
     except Exception as e:
         print(f"Error in technical skills analysis: {e}")
         return TechnicalSkillsMetrics(0, 0, 0)
